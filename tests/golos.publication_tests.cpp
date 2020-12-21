@@ -210,10 +210,10 @@ BOOST_FIXTURE_TEST_CASE(set_params, golos_publication_tester) try {
     params = "[" + post.get_str_comment_depth(0) + "]";
     BOOST_CHECK_EQUAL(err.max_cmmnt_dpth_less_0, post.set_params(params));
 
-    params = "[" + post.get_str_social_acc(N(gls.social)) + "]";
+    params = "[" + post.get_str_social_acc(N(finteh.soc)) + "]";
     BOOST_CHECK_EQUAL(err.no_social_acc, post.set_params(params));
 
-    params = "[" + post.get_str_referral_acc(N(gls.referral)) + "]";
+    params = "[" + post.get_str_referral_acc(N(finteh.ref)) + "]";
     BOOST_CHECK_EQUAL(err.no_referral_acc, post.set_params(params));
 
     params = "[" + post.get_str_curators_prcnt(cfg::_100percent+1, 3300) + "]";

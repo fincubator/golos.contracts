@@ -23,22 +23,22 @@ using token = eosio::token;
 #endif
 
 #define CYBER_TOKEN "cyber.token"
-#define GOLOS_VESTING "gls.vesting"
+#define GOLOS_VESTING "finteh.vest"
 
 namespace golos { namespace config {
 
 // contracts
-static const auto control_name  = "gls.ctrl"_n;
-static const auto social_name   = "gls.social"_n;
-static const auto publish_name  = "gls.publish"_n;
-static const auto charge_name   = "gls.charge"_n;
-static const auto emission_name = "gls.emit"_n;
-static const auto workers_name  = "gls.worker"_n;
-static const auto referral_name = "gls.referral"_n;
+static const auto control_name  = "finteh.ctrl"_n;
+static const auto social_name   = "finteh.soc"_n;
+static const auto publish_name  = "finteh.pub"_n;
+static const auto charge_name   = "finteh.chrg"_n;
+static const auto emission_name = "finteh.emit"_n;
+static const auto workers_name  = "finteh.work"_n;
+static const auto referral_name = "finteh.ref"_n;
 
 static const auto internal_name = "cyber"_n;
 static const auto token_name    = "cyber.token"_n;
-static const auto vesting_name  = "gls.vesting"_n;
+static const auto vesting_name  = "finteh.vest"_n;
 
 // permissions
 static const auto code_name = "code"_n;

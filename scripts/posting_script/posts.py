@@ -52,7 +52,7 @@ def convert_posts():
                 "childcount": doc["children"],
                 "level": doc["depth"],
                 "_SCOPE_": doc["author"],
-                "_PAYER_": "gls.publish",
+                "_PAYER_": "finteh.pub",
                 "_SIZE_": 50
             }
             dbs.cyberway_db['posttable'].save(message)

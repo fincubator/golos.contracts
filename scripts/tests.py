@@ -122,7 +122,7 @@ class TestTestnet(unittest.TestCase):
         # push test transaction
         userUsage = getResourceUsage(user)
         techUsage = getResourceUsage('tech')
-        trx = testnet.pushAction('gls.vesting', 'open', 'tech', [user, '6,GOLOS', 'tech'])
+        trx = testnet.pushAction('finteh.vest', 'open', 'tech', [user, '6,GOLOS', 'tech'])
         receipt = trx['processed']['receipt']
         self.assertLess(0, receipt['cpu_usage_us'])
         self.assertLess(0, receipt['net_usage_words'])
@@ -227,7 +227,7 @@ class TestTransit(unittest.TestCase):
         for (name, account) in account_list:
             self.assertEqual(account, resolve(name+'@golos'))
 
-        gls = getAccount('gls')
+        gls = getAccount('finteh')
         permissions = {}
         for perm in gls['permissions']:
             permissions[perm['perm_name']] = perm
@@ -245,7 +245,7 @@ class TestTransit(unittest.TestCase):
         self.assertEqual(permissions['golos.io'], {
             'perm_name': 'golos.io', 'parent': 'active',
             'required_auth': {'threshold': 1, 'keys': [
-                {'key': 'GLS7KqcmMzmVURzrPvpjfq8ZJSS7Dno82xQ7rpHVYxhz5JnZ9RxY9', 'weight': 1}
+                {'key': 'GLS76taNhqGMG4GptyJ2RYXgpJAH9zZzetyXW3troKFkpGciW8hjs', 'weight': 1}
             ], 'accounts': [], 'waits': []}
         })
 
@@ -262,11 +262,11 @@ class TestFreeUser(unittest.TestCase):
 
     def test_createPost(self):
         permlink = randomPermlink()
-        publishUsage = getResourceUsage('gls.publish')
+        publishUsage = getResourceUsage('finteh.pub')
 
         # Check that user can post using own bandwidth
         testnet.createPost(self.freeUser, permlink, "", randomText(32), randomText(1024))
-        print("Was: %s, current: %s" % (publishUsage, getResourceUsage('gls.publish')))
+        print("Was: %s, current: %s" % (publishUsage, getResourceUsage('finteh.pub')))
 
         # Check that user can upvote using own bandwidth
         testnet.upvotePost(self.freeUser, self.freeUser, permlink, 10000)
@@ -285,43 +285,43 @@ class TestGolosIo(unittest.TestCase):
 
         user = createRandomAccount(
                 public, creator=self.siteAccount,
-                providebw=self.siteAccount+'/gls@providebw',
+                providebw=self.siteAccount+'/finteh@providebw',
                 keys=[self.siteKey, golosIoKey])
 
         testnet.pushAction(
-                'gls.vesting', 'open', self.siteAccount, [user, testnet.args.vesting, self.siteAccount],
-                providebw=self.siteAccount+'/gls@providebw',
+                'finteh.vest', 'open', self.siteAccount, [user, testnet.args.vesting, self.siteAccount],
+                providebw=self.siteAccount+'/finteh@providebw',
                 keys=[self.siteKey, golosIoKey])
 
         testnet.pushAction(
                 'cyber.token', 'open', self.siteAccount, [user, testnet.args.token, self.siteAccount],
-                providebw=self.siteAccount+'/gls@providebw',
+                providebw=self.siteAccount+'/finteh@providebw',
                 keys=[self.siteKey, golosIoKey])
 
         testnet.pushAction(
-                'cyber.domain', 'newusername', 'gls@createuser', ['gls', user, username],
+                'cyber.domain', 'newusername', 'finteh@createuser', ['finteh', user, username],
                 keys=[golosIoKey])
 
     def test_createPost(self):
         (private,public) = createKey()
         user = createRandomAccount(public)
-        testnet.pushAction('gls.vesting', 'open', 'tech', [user, testnet.args.vesting, 'tech'])
+        testnet.pushAction('finteh.vest', 'open', 'tech', [user, testnet.args.vesting, 'tech'])
 
         permlink = randomPermlink()
-        publishUsage = getResourceUsage('gls.publish')
+        publishUsage = getResourceUsage('finteh.pub')
         testnet.createPost(
                 user, permlink, "", randomText(32), randomText(1024),
-                providebw=user+'/gls@providebw',
+                providebw=user+'/finteh@providebw',
                 keys=[private, golosIoKey])
-        print("Was: %s, current: %s" % (publishUsage, getResourceUsage('gls.publish')))
+        print("Was: %s, current: %s" % (publishUsage, getResourceUsage('finteh.pub')))
 
         testnet.upvotePost(
                 user, user, permlink, 10000,
-                providebw=user+'/gls@providebw',
+                providebw=user+'/finteh@providebw',
                 keys=[private, golosIoKey])
 
     def test_addReferral(self):
-        params = json.loads(testnet.cleos('get table gls.referral gls.referral refparams'))['rows'][0]
+        params = json.loads(testnet.cleos('get table finteh.ref finteh.ref refparams'))['rows'][0]
 
         (private1,public1) = createKey()
         user1 = createRandomAccount(public1)
@@ -333,25 +333,25 @@ class TestGolosIo(unittest.TestCase):
         breakout = params['breakout_params']['min_breakout']
         expire = 60
         testnet.pushAction(
-                'gls.referral', 'addreferral', 'gls.referral@newreferral',
+                'finteh.ref', 'addreferral', 'finteh.ref@newreferral',
                 [user1, user2, percent, expire, breakout],
-                providebw='gls.referral/gls@providebw',
+                providebw='finteh.ref/finteh@providebw',
                 keys=[golosIoKey])
 
     def test_doesntAllowedChangeParams(self):
         # Check that golos.io can't change parameters without leaders
-        params = json.loads(testnet.cleos('get table gls.vesting GOLOS vestparams'))['rows'][0]
+        params = json.loads(testnet.cleos('get table finteh.vest GOLOS vestparams'))['rows'][0]
         min_amount = params['min_amount']['min_amount']
         min_amount += -1 if min_amount%2 else +1
 
-        with self.assertRaisesRegex(Exception, 'transaction declares authority \'{"actor":"gls","permission":"active"}\', but does not have signatures for it'):
+        with self.assertRaisesRegex(Exception, 'transaction declares authority \'{"actor":"finteh","permission":"active"}\', but does not have signatures for it'):
             testnet.pushAction(
-                    'gls.vesting', 'setparams', 'gls@active', ["6,GOLOS",[["vesting_amount",{"min_amount":min_amount}]]],
+                    'finteh.vest', 'setparams', 'finteh@active', ["6,GOLOS",[["vesting_amount",{"min_amount":min_amount}]]],
                     keys=[golosIoKey])
 
-        with self.assertRaisesRegex(Exception, 'action declares irrelevant authority \'{"actor":"gls","permission":"golos.io"}\'; minimum authority is {"actor":"gls","permission":"active"}'):
+        with self.assertRaisesRegex(Exception, 'action declares irrelevant authority \'{"actor":"finteh","permission":"golos.io"}\'; minimum authority is {"actor":"finteh","permission":"active"}'):
             testnet.pushAction(
-                    'gls.vesting', 'setparams', 'gls@golos.io', ["6,GOLOS",[["vesting_amount",{"min_amount":min_amount}]]],
+                    'finteh.vest', 'setparams', 'finteh@golos.io', ["6,GOLOS",[["vesting_amount",{"min_amount":min_amount}]]],
                     keys=[golosIoKey])
 
     def test_emitCallByAny(self):
@@ -359,7 +359,7 @@ class TestGolosIo(unittest.TestCase):
         user = createRandomAccount(public)
 
         try:
-            testnet.pushAction('gls.emit', 'emit', user, [],
+            testnet.pushAction('finteh.emit', 'emit', user, [],
                     providebw=user+'/tech@active',
                     keys=[private,techKey])
         except Exception as err:
@@ -369,7 +369,7 @@ class TestGolosIo(unittest.TestCase):
         (private,public) = createKey()
         user = createRandomAccount(public)
 
-        testnet.pushAction('gls.publish', 'closemssgs', user, [user],
+        testnet.pushAction('finteh.pub', 'closemssgs', user, [user],
                 providebw=user+'/tech@active',
                 keys=[private,techKey])
 
@@ -389,7 +389,7 @@ class TestGolosIo(unittest.TestCase):
 
         with self.assertRaisesRegex(Exception, "Message doesn't closed"):
             testnet.pushAction(
-                    'gls.publish', 'paymssgrwrd', user, {'message_id':{'author':author,'permlink':permlink}},
+                    'finteh.pub', 'paymssgrwrd', user, {'message_id':{'author':author,'permlink':permlink}},
                     providebw=user+'/tech@active',
                     keys=[private2, techKey])
 
@@ -398,18 +398,18 @@ class TestGolosIo(unittest.TestCase):
         user = createRandomAccount(public)
 
         try:
-            testnet.pushAction('gls.vesting', 'timeout', user, ["6,GOLOS"],
-                    providebw=[user+'/tech@active', 'gls.vesting/tech@active'],
+            testnet.pushAction('finteh.vest', 'timeout', user, ["6,GOLOS"],
+                    providebw=[user+'/tech@active', 'finteh.vest/tech@active'],
                     keys=[private, techKey])
             self.fail('Timeout does not scheduled')
         except Exception as err:
             self.assertRegex(str(err), 'deferred transaction with the same sender_id and payer already exists')
 
-        testnet.pushAction('gls.vesting', 'timeoutconv', user, [],
-                providebw=[user+'/tech@active', 'gls.ctrl/tech@active'],
+        testnet.pushAction('finteh.vest', 'timeoutconv', user, [],
+                providebw=[user+'/tech@active', 'finteh.ctrl/tech@active'],
                 keys=[private, techKey])
 
-        testnet.pushAction('gls.vesting', 'timeoutrdel', user, [],
+        testnet.pushAction('finteh.vest', 'timeoutrdel', user, [],
                 providebw=user+'/tech@active',
                 keys=[private, techKey])
 
@@ -417,7 +417,7 @@ class TestGolosIo(unittest.TestCase):
         (private,public) = createKey()
         user = createRandomAccount(public)
 
-        testnet.pushAction('gls.referral', 'closeoldref', user, [],
+        testnet.pushAction('finteh.ref', 'closeoldref', user, [],
                 providebw=user+'/tech@active',
                 keys=[private, techKey])
 
@@ -432,57 +432,57 @@ class TestGolosIo(unittest.TestCase):
 
         amount = '100.000 GOLOS'
         testnet.issueToken(user1, amount, keys=[testingKey])
-        testnet.transfer(user1, 'gls.vesting', amount, providebw=user1+'/gls@providebw', keys=[golosIoKey, private1])
+        testnet.transfer(user1, 'finteh.vest', amount, providebw=user1+'/finteh@providebw', keys=[golosIoKey, private1])
 
-        user1Vesting = json.loads(testnet.cleos('get table gls.vesting %s accounts' % user1))['rows'][0]
+        user1Vesting = json.loads(testnet.cleos('get table finteh.vest %s accounts' % user1))['rows'][0]
         vestAmount = user1Vesting['vesting'].split(' ', 2)
         self.assertGreater(float(vestAmount[0]), 100111.000000)
         self.assertEqual(vestAmount[1], 'GOLOS')
 
         vestAmount = '100111.000000 GOLOS'
-        testnet.pushAction('gls.vesting', 'delegate', [user1, user2],
+        testnet.pushAction('finteh.vest', 'delegate', [user1, user2],
             {'from':user1, 'to':user2, 'quantity':vestAmount, 'memo':'', 'interest_rate':1000},
-            providebw=[user1+'/gls@providebw', user2+'/gls@providebw'],
+            providebw=[user1+'/finteh@providebw', user2+'/finteh@providebw'],
             keys=[golosIoKey, private1, private2])
 
-        user1Vesting = json.loads(testnet.cleos('get table gls.vesting %s accounts' % user1))['rows'][0]
-        user2Vesting = json.loads(testnet.cleos('get table gls.vesting %s accounts' % user2))['rows'][0]
+        user1Vesting = json.loads(testnet.cleos('get table finteh.vest %s accounts' % user1))['rows'][0]
+        user2Vesting = json.loads(testnet.cleos('get table finteh.vest %s accounts' % user2))['rows'][0]
         self.assertEqual(user1Vesting['delegated'], '100111.000000 GOLOS')
         self.assertEqual(user2Vesting['received'],  '100111.000000 GOLOS')
 
         wait(0)    # get from params `delegation.min_time`
 
-        testnet.pushAction('gls.vesting', 'undelegate', user1,
+        testnet.pushAction('finteh.vest', 'undelegate', user1,
             {'from':user1, 'to':user2, 'quantity':'100000.000000 GOLOS', 'memo':''},
-            providebw=user1+'/gls@providebw',
+            providebw=user1+'/finteh@providebw',
             keys=[golosIoKey, private1])
 
-        user1Vesting = json.loads(testnet.cleos('get table gls.vesting %s accounts' % user1))['rows'][0]
-        user2Vesting = json.loads(testnet.cleos('get table gls.vesting %s accounts' % user2))['rows'][0]
+        user1Vesting = json.loads(testnet.cleos('get table finteh.vest %s accounts' % user1))['rows'][0]
+        user2Vesting = json.loads(testnet.cleos('get table finteh.vest %s accounts' % user2))['rows'][0]
         self.assertEqual(user1Vesting['delegated'], '100111.000000 GOLOS')
         self.assertEqual(user2Vesting['received'],  '111.000000 GOLOS')
 
         wait(120+3)  # get from params `delegation.return_time`
 
-        user1Vesting = json.loads(testnet.cleos('get table gls.vesting %s accounts' % user1))['rows'][0]
-        user2Vesting = json.loads(testnet.cleos('get table gls.vesting %s accounts' % user2))['rows'][0]
+        user1Vesting = json.loads(testnet.cleos('get table finteh.vest %s accounts' % user1))['rows'][0]
+        user2Vesting = json.loads(testnet.cleos('get table finteh.vest %s accounts' % user2))['rows'][0]
         self.assertEqual(user1Vesting['delegated'], '111.000000 GOLOS')
         self.assertEqual(user2Vesting['received'],  '111.000000 GOLOS')
 
-        testnet.pushAction('gls.vesting', 'undelegate', user1,
+        testnet.pushAction('finteh.vest', 'undelegate', user1,
             {'from':user1, 'to':user2, 'quantity':'111.000000 GOLOS', 'memo':''},
-            providebw=user1+'/gls@providebw',
+            providebw=user1+'/finteh@providebw',
             keys=[golosIoKey, private1])
 
-        user1Vesting = json.loads(testnet.cleos('get table gls.vesting %s accounts' % user1))['rows'][0]
-        user2Vesting = json.loads(testnet.cleos('get table gls.vesting %s accounts' % user2))['rows'][0]
+        user1Vesting = json.loads(testnet.cleos('get table finteh.vest %s accounts' % user1))['rows'][0]
+        user2Vesting = json.loads(testnet.cleos('get table finteh.vest %s accounts' % user2))['rows'][0]
         self.assertEqual(user1Vesting['delegated'], '111.000000 GOLOS')
         self.assertEqual(user2Vesting['received'],  '0.000000 GOLOS')
 
         wait(120+3)  # get from params `delegation.return_time`
 
-        user1Vesting = json.loads(testnet.cleos('get table gls.vesting %s accounts' % user1))['rows'][0]
-        user2Vesting = json.loads(testnet.cleos('get table gls.vesting %s accounts' % user2))['rows'][0]
+        user1Vesting = json.loads(testnet.cleos('get table finteh.vest %s accounts' % user1))['rows'][0]
+        user2Vesting = json.loads(testnet.cleos('get table finteh.vest %s accounts' % user2))['rows'][0]
 
         self.assertEqual(user1Vesting['delegated'], '0.000000 GOLOS')
         self.assertEqual(user2Vesting['received'],  '0.000000 GOLOS')
@@ -498,31 +498,31 @@ class TestGolosIoTesting(unittest.TestCase):
         #   Error 3100006: Subjective exception thrown during block production
         #   Error Details:
         #   Authorization failure with inline action sent to self
-        #   transaction declares authority '{"actor":"gls","permission":"active"}', but does not have signatures for it under a provided delay of 0 ms, provided permissions [{"actor":"cyber.token","permission":"cyber.code"}], provided keys [], and a delay max limit of 3888000000 ms
+        #   transaction declares authority '{"actor":"finteh","permission":"active"}', but does not have signatures for it under a provided delay of 0 ms, provided permissions [{"actor":"cyber.token","permission":"cyber.code"}], provided keys [], and a delay max limit of 3888000000 ms
         amount = '100.000 GOLOS'
-        testnet.pushAction('cyber.token', 'issue', 'gls@issue', ['gls', amount, ''],
+        testnet.pushAction('cyber.token', 'issue', 'finteh@issue', ['finteh', amount, ''],
                 keys=[testingKey])
 
-        testnet.pushAction('cyber.token', 'transfer', 'gls@issue', ['gls', user, amount, ''],
+        testnet.pushAction('cyber.token', 'transfer', 'finteh@issue', ['finteh', user, amount, ''],
                 keys=[testingKey])
 
         self.assertEqual(amount+'\n', testnet.cleos('get currency balance cyber.token %s GOLOS' % user))
 
     def test_setVestingParams(self):
-        params = json.loads(testnet.cleos('get table gls.vesting GOLOS vestparams'))['rows'][0]
+        params = json.loads(testnet.cleos('get table finteh.vest GOLOS vestparams'))['rows'][0]
         min_amount = params['min_amount']['min_amount']
         min_amount += -1 if min_amount%2 else +1
         testnet.pushAction(
-                'gls.vesting', 'setparams', 'gls', ["6,GOLOS",[["vesting_amount",{"min_amount":min_amount}]]],
+                'finteh.vest', 'setparams', 'finteh', ["6,GOLOS",[["vesting_amount",{"min_amount":min_amount}]]],
                 keys=[testingKey])
 
     def test_setPostingParams(self):
-        params = json.loads(testnet.cleos('get table gls.publish gls.publish pstngparams'))['rows'][0]
+        params = json.loads(testnet.cleos('get table finteh.pub finteh.pub pstngparams'))['rows'][0]
         max_comment_depth = params['max_comment_depth']['value']
         max_comment_depth += -1 if max_comment_depth%2 else +1
         testnet.pushAction(
-                'gls.publish', 'setparams', 'gls.publish', [[["st_max_comment_depth",{"value":max_comment_depth}]]],
-                providebw='gls.publish/gls@providebw',
+                'finteh.pub', 'setparams', 'finteh.pub', [[["st_max_comment_depth",{"value":max_comment_depth}]]],
+                providebw='finteh.pub/finteh@providebw',
                 keys=[testingKey, golosIoKey])
 
 
@@ -540,24 +540,24 @@ class TestGolos_v2_0_1(unittest.TestCase):
     def updateGlsPublish(self):
         cmd = 'docker run -ti {image} bash -c "PATH=$PATH:/opt/cyberway/bin/; ' \
               'cleos wallet create --to-console && cleos wallet import --private-key {KEY} && ' \
-              'cleos --url {URL} set contract gls.publish /opt/golos.contracts/golos.publication --bandwidth-provider gls.publish/gls"'.format(
+              'cleos --url {URL} set contract finteh.pub /opt/golos.contracts/golos.publication --bandwidth-provider finteh.pub/finteh"'.format(
               URL=urlInDocker(), KEY=testingKey, image=self.image)
         subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, universal_newlines=True)
 
     def updateGlsSocial(self):
         cmd = 'docker run -ti {image} bash -c "PATH=$PATH:/opt/cyberway/bin/; ' \
               'cleos wallet create --to-console && cleos wallet import --private-key {KEY} && ' \
-              'cleos --url {URL} set contract gls.social /opt/golos.contracts/golos.social --bandwidth-provider gls.social/gls"'.format(
+              'cleos --url {URL} set contract finteh.soc /opt/golos.contracts/golos.social --bandwidth-provider finteh.soc/finteh"'.format(
               URL=urlInDocker(), KEY=testingKey, image=self.image)
         subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, universal_newlines=True)
 
     def createGolosIoAuthorityTrx(self):
         trx = testnet.Trx(expiration=5*60)
     
-        golosIoAuth = testnet.createAuthority([], ['gls@golos.io'])
+        golosIoAuth = testnet.createAuthority([], ['finteh@golos.io'])
         codeActions = [
-            ('gls.publish', ['addpermlink', 'delpermlink', 'addpermlinks', 'delpermlinks',]),
-            ('gls.social',  ['addpin', 'addblock',])
+            ('finteh.pub', ['addpermlink', 'delpermlink', 'addpermlinks', 'delpermlinks',]),
+            ('finteh.soc',  ['addpin', 'addblock',])
         ]
     
         for (code, actions) in codeActions:
@@ -568,8 +568,8 @@ class TestGolos_v2_0_1(unittest.TestCase):
                     'auth': golosIoAuth
                 })
     
-            trx.addAction('cyber', 'providebw', 'gls', {
-                    'provider': 'gls',
+            trx.addAction('cyber', 'providebw', 'finteh', {
+                    'provider': 'finteh',
                     'account': code
                 })
     
@@ -586,9 +586,9 @@ class TestGolos_v2_0_1(unittest.TestCase):
     def updateGolosIoAuthority(self):
         trx = self.createGolosIoAuthorityTrx()
 
-        proposer = 'gls'
+        proposer = 'finteh'
         name = randomName()
-        auth = testnet.parseAuthority('gls@active')
+        auth = testnet.parseAuthority('finteh@active')
         testnet.cleos('multisig propose_trx {name} {auth} {trx} {proposer}'.format(
                 name=name, auth=testnet.jsonArg([auth]), trx=testnet.jsonArg(trx.getTrx()), proposer=proposer),
                 keys=[testingKey])
@@ -600,7 +600,7 @@ class TestGolos_v2_0_1(unittest.TestCase):
                 keys=[testingKey])
 
         wait(5)
-        glsPublish = testnet.getAccount('gls.publish')
+        glsPublish = testnet.getAccount('finteh.pub')
         print(glsPublish)
 
 
@@ -611,37 +611,37 @@ class TestGolos_v2_0_1(unittest.TestCase):
         (private2, public2) = createKey()
         user2 = createRandomAccount(public2)
 
-        testnet.pushAction('gls.social', 'addpin', 'gls.social@golos.io', {
+        testnet.pushAction('finteh.soc', 'addpin', 'finteh.soc@golos.io', {
                 "pinner": user1,
                 "pinning": user2
-            }, providebw='gls.social/gls@providebw', keys=[golosIoKey])
+            }, providebw='finteh.soc/finteh@providebw', keys=[golosIoKey])
 
-        testnet.pushAction('gls.social', 'addblock', 'gls.social@golos.io', {
+        testnet.pushAction('finteh.soc', 'addblock', 'finteh.soc@golos.io', {
                 "blocker": user2,
                 "blocking": user1
-            }, providebw='gls.social/gls@providebw', keys=[golosIoKey])
+            }, providebw='finteh.soc/finteh@providebw', keys=[golosIoKey])
 
     def test_adddelpermlink(self):
         author = resolve("null@golos")
         permlink = randomPermlink()
-        testnet.pushAction('gls.publish', 'addpermlink', 'gls.publish@golos.io', {
+        testnet.pushAction('finteh.pub', 'addpermlink', 'finteh.pub@golos.io', {
                 'msg': {'author': author, 'permlink': permlink},
                 'parent': {'author': '', 'permlink': ''},
                 'level': 0,
                 'childcount': 0
-            }, providebw='gls.publish/gls@providebw', keys=[golosIoKey])
+            }, providebw='finteh.pub/finteh@providebw', keys=[golosIoKey])
 
-        testnet.pushAction('gls.publish', 'delpermlink', 'gls.publish@golos.io', {
+        testnet.pushAction('finteh.pub', 'delpermlink', 'finteh.pub@golos.io', {
                 'msg': {'author': author, 'permlink': permlink}
-            }, providebw='gls.publish/gls@providebw', keys=[golosIoKey])
+            }, providebw='finteh.pub/finteh@providebw', keys=[golosIoKey])
 
     def printRewardPools(self):
-        pools = json.loads(testnet.cleos('get table gls.publish gls.publish rewardpools -l 10'))['rows']
+        pools = json.loads(testnet.cleos('get table finteh.pub finteh.pub rewardpools -l 10'))['rows']
         for pool in pools:
             print('{created} with {fund} funds {msgs} messages and {rshares}'.format(
                     created=pool['created'], fund=pool['state']['funds'], msgs=pool['state']['msgs'], rshares=pool['state']['rshares']))
 
-        msgs = json.loads(testnet.cleos('get table gls.publish gls.publish message -l 50'))['rows']
+        msgs = json.loads(testnet.cleos('get table finteh.pub finteh.pub message -l 50'))['rows']
         for msg in msgs:
             print('{pool_date} {date} {author}/{ident}'.format(
                     pool_date=msg['pool_date'], date=msg['date'], author=msg['author'], ident=msg['id']))
@@ -652,24 +652,24 @@ class TestGolos_v2_0_1(unittest.TestCase):
         # Precondition: golos testnet with no closed posts (cyberway/golos.contracts:ci-skip-posts)
         # Check:
         #   - fix message count broken by deletemssg action
-        #   - fix difference between gls.publish GOLOS balance and reward-pools state
+        #   - fix difference between finteh.pub GOLOS balance and reward-pools state
 
         print('--- Change reward window settings & emission period ---')
-        params = json.loads(testnet.cleos('get table gls.publish gls.publish pstngparams'))['rows'][0]
+        params = json.loads(testnet.cleos('get table finteh.pub finteh.pub pstngparams'))['rows'][0]
         if params['cashout_window']['window'] != 60 or params['cashout_window']['upvote_lockout'] != 5:
-            testnet.pushAction('gls.publish', 'setparams', 'gls.publish', {
+            testnet.pushAction('finteh.pub', 'setparams', 'finteh.pub', {
                     'params':[
                         ['st_cashout_window', {'window': 60, 'upvote_lockout': 5}]
                     ]
-               }, providebw='gls.publish/gls', keys=[testingKey])
+               }, providebw='finteh.pub/finteh', keys=[testingKey])
 
-        params = json.loads(testnet.cleos('get table gls.emit gls.emit emitparams'))['rows'][0]
+        params = json.loads(testnet.cleos('get table finteh.emit finteh.emit emitparams'))['rows'][0]
         if params['interval']['value'] != 15:
-            testnet.pushAction('gls.emit', 'setparams', 'gls.emit', {
+            testnet.pushAction('finteh.emit', 'setparams', 'finteh.emit', {
                     'params':[
                         ['emit_interval', {'value': 15}]
                     ]
-                }, providebw='gls.emit/gls', keys=[testingKey])
+                }, providebw='finteh.emit/finteh', keys=[testingKey])
 
         self.printRewardPools()
 
@@ -690,7 +690,7 @@ class TestGolos_v2_0_1(unittest.TestCase):
             "maxtokenprop": 5000,
             "tokensymbol": "3,GOLOS"
         }
-        testnet.pushAction('gls.publish', 'setrules', 'gls.publish', rules, providebw='gls.publish/gls', keys=[testingKey])
+        testnet.pushAction('finteh.pub', 'setrules', 'finteh.pub', rules, providebw='finteh.pub/finteh', keys=[testingKey])
 
         self.printRewardPools()
 
@@ -700,23 +700,23 @@ class TestGolos_v2_0_1(unittest.TestCase):
             (private, public) = createKey()
             acc = createRandomAccount(public)
             accounts[acc] = private
-            testnet.openVestingBalance(acc, 'gls', keys=[testingKey])
-            testnet.issueToken(acc, '100.000 GOLOS', providebw=acc+'/gls', keys=[testingKey])
-            testnet.transfer(acc, 'gls.vesting', '100.000 GOLOS', '', providebw=acc+'/gls', keys=[private, testingKey])
+            testnet.openVestingBalance(acc, 'finteh', keys=[testingKey])
+            testnet.issueToken(acc, '100.000 GOLOS', providebw=acc+'/finteh', keys=[testingKey])
+            testnet.transfer(acc, 'finteh.vest', '100.000 GOLOS', '', providebw=acc+'/finteh', keys=[private, testingKey])
 
         print('--- Create posts ---')
         pauthor = random.choice(list(accounts))
         ppermlink = randomPermlink()
         testnet.createPost(pauthor, ppermlink, 'ru', randomText(12), randomText(32),
-                providebw=pauthor+'/gls@providebw', keys=[golosIoKey, accounts[pauthor]])
+                providebw=pauthor+'/finteh@providebw', keys=[golosIoKey, accounts[pauthor]])
 
         posts = []
         for i in range(5):
             author = random.choice(list(accounts))
             permlink = randomPermlink()
             testnet.createComment(author, permlink, pauthor, ppermlink, randomText(12), randomText(32),
-                    providebw=author+'/gls@providebw', keys=[golosIoKey, accounts[author]])
-            # testnet.upvotePost(author, author, permlink, 10000, providebw=author+'/gls@providebw', keys=[golosIoKey, accounts[author]])
+                    providebw=author+'/finteh@providebw', keys=[golosIoKey, accounts[author]])
+            # testnet.upvotePost(author, author, permlink, 10000, providebw=author+'/finteh@providebw', keys=[golosIoKey, accounts[author]])
             posts.append((author, permlink,))
             wait(10)
 
@@ -727,9 +727,9 @@ class TestGolos_v2_0_1(unittest.TestCase):
         for i in range(2):
             (author, permlink) = random.choice(posts)
             posts.remove((author, permlink,))
-            testnet.pushAction('gls.publish', 'deletemssg', author, {
+            testnet.pushAction('finteh.pub', 'deletemssg', author, {
                     'message_id': {'author': author, 'permlink': permlink}
-                }, providebw=author+'/gls@providebw', keys=[golosIoKey, accounts[author]])
+                }, providebw=author+'/finteh@providebw', keys=[golosIoKey, accounts[author]])
         print('posts has {count}'.format(count=len(posts)))
 
         self.printRewardPools()
@@ -756,7 +756,7 @@ class TestGolos_v2_0_1(unittest.TestCase):
             "maxtokenprop": 5000,
             "tokensymbol": "6,GOLOS"
         }
-        testnet.pushAction('gls.publish', 'setrules', 'gls.publish', rules, providebw='gls.publish/gls', keys=[testingKey])
+        testnet.pushAction('finteh.pub', 'setrules', 'finteh.pub', rules, providebw='finteh.pub/finteh', keys=[testingKey])
         
         self.printRewardPools()
 
@@ -764,8 +764,8 @@ class TestGolos_v2_0_1(unittest.TestCase):
         for i in range(10):
             permlink = randomPermlink()
             testnet.createComment(author, permlink, pauthor, ppermlink, randomText(12), randomText(32),
-                    providebw=author+'/gls@providebw', keys=[golosIoKey, accounts[author]])
-            # testnet.upvotePost(author, author, permlink, 10000, providebw=author+'/gls@providebw', keys=[golosIoKey, accounts[author]])
+                    providebw=author+'/finteh@providebw', keys=[golosIoKey, accounts[author]])
+            # testnet.upvotePost(author, author, permlink, 10000, providebw=author+'/finteh@providebw', keys=[golosIoKey, accounts[author]])
             posts.append((author, permlink,))
             wait(10)
 
@@ -775,28 +775,28 @@ class TestGolos_v2_0_1(unittest.TestCase):
         for i in range(2):
             (author, permlink) = random.choice(posts)
             posts.remove((author, permlink,))
-            testnet.pushAction('gls.publish', 'deletemssg', author, {
+            testnet.pushAction('finteh.pub', 'deletemssg', author, {
                     'message_id': {'author': author, 'permlink': permlink}
-                }, providebw=author+'/gls@providebw', keys=[golosIoKey, accounts[author]])
+                }, providebw=author+'/finteh@providebw', keys=[golosIoKey, accounts[author]])
 
         
         # Check pool state
 
         self.printRewardPools()
 
-        print('--- Update gls.publish contract ---')
+        print('--- Update finteh.pub contract ---')
         self.updateGlsPublish()
 
         self.printRewardPools()
 
         print('--- Set new rules (fixed) ---')
         rules['tokensymbol'] = '3,GOLOS'
-        testnet.pushAction('gls.publish', 'setrules', 'gls.publish', rules, providebw='gls.publish/gls', keys=[testingKey])
+        testnet.pushAction('finteh.pub', 'setrules', 'finteh.pub', rules, providebw='finteh.pub/finteh', keys=[testingKey])
 
         self.printRewardPools()
 
         print('--- Execute `syncpool` ---')
-        testnet.pushAction('gls.publish', 'syncpool', 'gls.publish', {}, providebw='gls.publish/gls', keys=[testingKey])
+        testnet.pushAction('finteh.pub', 'syncpool', 'finteh.pub', {}, providebw='finteh.pub/finteh', keys=[testingKey])
 
         self.printRewardPools()
 
@@ -804,9 +804,9 @@ class TestGolos_v2_0_1(unittest.TestCase):
         for i in range(2):
             (author, permlink) = random.choice(posts)
             posts.remove((author, permlink,))
-            testnet.pushAction('gls.publish', 'deletemssg', author, {
+            testnet.pushAction('finteh.pub', 'deletemssg', author, {
                     'message_id': {'author': author, 'permlink': permlink}
-                }, providebw=author+'/gls@providebw', keys=[golosIoKey, accounts[author]])
+                }, providebw=author+'/finteh@providebw', keys=[golosIoKey, accounts[author]])
 
         self.printRewardPools()
 
@@ -814,8 +814,8 @@ class TestGolos_v2_0_1(unittest.TestCase):
         for i in range(15):
             permlink = randomPermlink()
             testnet.createComment(author, permlink, pauthor, ppermlink, randomText(12), randomText(32),
-                    providebw=author+'/gls@providebw', keys=[golosIoKey, accounts[author]])
-            # testnet.upvotePost(author, author, permlink, 10000, providebw=author+'/gls@providebw', keys=[golosIoKey, accounts[author]])
+                    providebw=author+'/finteh@providebw', keys=[golosIoKey, accounts[author]])
+            # testnet.upvotePost(author, author, permlink, 10000, providebw=author+'/finteh@providebw', keys=[golosIoKey, accounts[author]])
             posts.append((author, permlink,))
             wait(10)
 

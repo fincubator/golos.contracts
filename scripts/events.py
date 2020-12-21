@@ -80,25 +80,25 @@ def eosio_updateAuth(action):
     return "%s@%s %s" % (args['account'], args['permission'], auth)
 
 _actions = (
-    ('cyber.token',   None,    'issue',    cyberToken_issue),
-    ('cyber.token',   None,    'transfer', cyberToken_transfer),
-    ('gls.publish',   None,    'createmssg', glsPublish_createmssg),
-    ('gls.publish',   None,    'closemssgs',  glsPublish_closemssgs),
-    ('gls.publish',   None,    'upvote',     glsPublish_upvote),
-    ('gls.publish',   None,    'downvote',   glsPublish_downvote),
-    ('gls.publish',   None,    'unvote',     glsPublish_unvote),
-    ('gls.ctrl',      None,    'changevest', glsCtrl_changeVest),
-    ('eosio',         None,    'updateauth', eosio_updateAuth),
+    ('cyber.token', None, 'issue',        cyberToken_issue),
+    ('cyber.token', None, 'transfer',     cyberToken_transfer),
+    ('finteh.pub',  None, 'createmssg',   glsPublish_createmssg),
+    ('finteh.pub',  None, 'closemssgs',   glsPublish_closemssgs),
+    ('finteh.pub',  None, 'upvote',       glsPublish_upvote),
+    ('finteh.pub',  None, 'downvote',     glsPublish_downvote),
+    ('finteh.pub',  None, 'unvote',       glsPublish_unvote),
+    ('finteh.ctrl', None, 'changevest',   glsCtrl_changeVest),
+    ('eosio',       None, 'updateauth',   eosio_updateAuth),
 )
 
 _events = (
-    ('cyber.token',   None,    'currency',   cyberToken_currency),
-    ('cyber.token',   None,    'balance',    cyberToken_balance),
-    ('gls.publish',   None,    'poolstate',  glsPublish_poolState),
-    ('gls.publish',   None,    'poststate',  glsPublish_postState),
-    ('gls.publish',   None,    'votestate',  glsPublish_voteState),
-    ('gls.publish',   None,    'postclose',  glsPublish_postClose),
-    ('gls.ctrl',      None,    'witnessstate', glsCtrl_witnessState),
+    ('cyber.token', None, 'currency',     cyberToken_currency),
+    ('cyber.token', None, 'balance',      cyberToken_balance),
+    ('finteh.pub',  None, 'poolstate',    glsPublish_poolState),
+    ('finteh.pub',  None, 'poststate',    glsPublish_postState),
+    ('finteh.pub',  None, 'votestate',    glsPublish_voteState),
+    ('finteh.pub',  None, 'postclose',    glsPublish_postClose),
+    ('finteh.ctrl', None, 'witnessstate', glsCtrl_witnessState),
 )
 
 class Contract:

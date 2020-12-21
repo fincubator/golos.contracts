@@ -196,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE(transfer_tests, golos_referral_tester) try {
 
     const auto current_time = control->head_block_time().sec_since_epoch();
 
-    BOOST_TEST_MESSAGE("--- creating referral 'gls.referral'");
+    BOOST_TEST_MESSAGE("--- creating referral 'finteh.ref'");
     BOOST_CHECK(!referral.get_referral(cfg::referral_name));
     BOOST_CHECK_EQUAL(success(), referral.create_referral(N(issuer), cfg::referral_name, 500, current_time + expire, token.make_asset(breakout)));
     BOOST_CHECK_EQUAL(referral.get_referral(cfg::referral_name)["referral"].as<name>(), cfg::referral_name);

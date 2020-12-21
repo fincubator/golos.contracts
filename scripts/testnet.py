@@ -154,7 +154,7 @@ def transfer(sender, recipient, amount, memo="", *, providebw=None, keys=None):
 def openVestingBalance(account, payer=None, *, providebw=None, keys=None):
     if payer == None:
         payer = account
-    pushAction('gls.vesting', 'open', payer, [account, args.vesting, payer], providebw=providebw, keys=keys)
+    pushAction('finteh.vest', 'open', payer, [account, args.vesting, payer], providebw=providebw, keys=keys)
 
 def openTokenBalance(account, payer=None, *, providebw=None, keys=None):
     if payer == None:
@@ -162,26 +162,26 @@ def openTokenBalance(account, payer=None, *, providebw=None, keys=None):
     pushAction('cyber.token', 'open', payer, [account, args.token, payer], providebw=providebw, keys=keys)
 
 def issueToken(account, amount, memo="", *, providebw=None, keys=None):
-    pushAction('cyber.token', 'issue', 'gls', [account, amount, memo], providebw=providebw, keys=keys)
+    pushAction('cyber.token', 'issue', 'finteh', [account, amount, memo], providebw=providebw, keys=keys)
 
 def buyVesting(account, amount):
     issueToken(account, amount)
-    transfer(account, 'gls.vesting', amount)   # buy vesting
+    transfer(account, 'finteh.vest', amount)   # buy vesting
 
 def registerWitness(witness, url=None):
     if url == None:
         url = 'http://%s.witnesses.golos.io' % witness
-    pushAction('gls.ctrl', 'regwitness', witness, {
+    pushAction('finteh.ctrl', 'regwitness', witness, {
         'domain': args.token,
         'witness': witness,
         'url': url
     })
 
 def voteWitness(voter, witness):
-    pushAction('gls.ctrl', 'votewitness', voter, [voter, witness])
+    pushAction('finteh.ctrl', 'votewitness', voter, [voter, witness])
 
 def createPost(author, permlink, category, header, body, *, beneficiaries=[], providebw=None, keys=None):
-    return pushAction('gls.publish', 'createmssg', author, {
+    return pushAction('finteh.pub', 'createmssg', author, {
             'message_id':{'author':author, 'permlink':permlink}, 
             'parent_id':{'author':"", 'permlink':category}, 
             'beneficiaries':beneficiaries,
@@ -195,7 +195,7 @@ def createPost(author, permlink, category, header, body, *, beneficiaries=[], pr
         }, providebw=providebw, keys=keys)
 
 def createComment(author, permlink, pauthor, ppermlink, header, body, *, beneficiaries=[], providebw=None, keys=None):
-    return pushAction('gls.publish', 'createmssg', author, {
+    return pushAction('finteh.pub', 'createmssg', author, {
             'message_id':{'author':author, 'permlink':permlink}, 
             'parent_id':{'author':pauthor, 'permlink':ppermlink}, 
             'beneficiaries':beneficiaries,
@@ -209,11 +209,11 @@ def createComment(author, permlink, pauthor, ppermlink, header, body, *, benefic
         }, providebw=providebw, keys=keys)
 
 def upvotePost(voter, author, permlink, weight, *, providebw=None, keys=None):
-    return pushAction('gls.publish', 'upvote', voter, {'voter':voter, 'message_id':{'author':author, 'permlink':permlink}, 'weight':weight}, providebw=providebw, keys=keys)
+    return pushAction('finteh.pub', 'upvote', voter, {'voter':voter, 'message_id':{'author':author, 'permlink':permlink}, 'weight':weight}, providebw=providebw, keys=keys)
 
 def downvotePost(voter, author, permlink, weight, *, providebw=None, keys=None):
-    return pushAction('gls.publish', 'downvote', voter, {'voter':voter, 'message_id':{'author':author, 'permlink':permlink}, 'weight':weight}, providebw=providebw, keys=keys)
+    return pushAction('finteh.pub', 'downvote', voter, {'voter':voter, 'message_id':{'author':author, 'permlink':permlink}, 'weight':weight}, providebw=providebw, keys=keys)
 
 def unvotePost(voter, author, permlink, *, providebw=None, keys=None):
-    return pushAction('gls.publish', 'unvote', voter, [voter, author, permlink], providebw=providebw, keys=keys)
+    return pushAction('finteh.pub', 'unvote', voter, [voter, author, permlink], providebw=providebw, keys=keys)
 

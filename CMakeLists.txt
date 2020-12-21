@@ -77,7 +77,7 @@ if (NOT DEFINED TOKEN_NAME)
 endif(NOT DEFINED TOKEN_NAME)
 
 if (NOT DEFINED VESTING_NAME)
-    set(VESTING_NAME "gls.vesting")
+    set(VESTING_NAME "finteh.vest")
 endif(NOT DEFINED VESTING_NAME)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/common/config.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/common/config.hpp)
