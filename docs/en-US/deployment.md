@@ -21,7 +21,7 @@ cd /opt/cyberway/bin
 ```bash
 ./cleos wallet create --to-console
 ```
-Save password from the output to use in the future to unlock this wallet.
+Save password from the output to use in the future to unlock this wallet.  
 6. Import private key of your cyberway account:
 ```bash
 ./cleos wallet import
@@ -30,7 +30,7 @@ Save password from the output to use in the future to unlock this wallet.
 ```bash
 ./cleos create key --to-console
 ```
-Repeat this once more if your want to use separate owner and active keys.
+Repeat this once more if your want to use separate owner and active keys.  
 8. Bid to buy name for prefix:
 ```bash
 ./cleos -u <node> system bidname <bidder> <prefix> "1.0000 CYBER"
@@ -44,7 +44,7 @@ For example, the following command will bid name `finteh` from `fintehescrow` us
 ```bash
 ./cleos -u <node> create account <bidder> <prefix> <OwnerKey> [ActiveKey]
 ```
-Use private keys generated earlier.
+Use private keys generated earlier.  
 10. Create accounts for all contracts and import their keys into wallet:
   * golos.charge
   * golos.config
@@ -54,7 +54,7 @@ Use private keys generated earlier.
   * golos.publication
   * golos.referral
   * golos.social
-  * golos.vesting
+  * golos.vesting  
 Each account name should not have more than 12 characters (including prefix).
 11. Set contract:
 ```bash
